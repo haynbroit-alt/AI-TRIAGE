@@ -5,8 +5,7 @@
  * Requires ANTHROPIC_API_KEY in env (or .env.local loaded via dotenv).
  */
 
-import { extractFeatures } from '../src/inbox/llm';
-import { scoreLead } from '../src/inbox/triage';
+import { triageEmail } from '../src/adapters/email/adapter';
 
 const SAMPLE_EMAILS = [
   {
@@ -32,8 +31,7 @@ Pouvez-vous nous proposer une démo cette semaine ?`,
 async function main() {
   for (const email of SAMPLE_EMAILS) {
     console.log(`\n--- ${email.from} ---`);
-    const features = await extractFeatures(email);
-    const result = scoreLead(features);
+    const result = await triageEmail(email);
     console.log(JSON.stringify(result, null, 2));
   }
 }

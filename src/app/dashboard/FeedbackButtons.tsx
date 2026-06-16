@@ -1,32 +1,43 @@
 'use client';
 
 import { useState } from 'react';
-import type { Decision } from '@/inbox/types';
+import type { FeedbackType, Decision } from '@/inbox/types';
 import styles from './dashboard.module.css';
 
-const OPTIONS: Decision[] = ['ACT', 'WATCH', 'IGNORE'];
+type OverrideDecision = 'ACT' | 'WATCH' | 'IGNORE';
 
 export function FeedbackButtons({
   leadId,
-  initial,
+  feedbackType,
+  feedbackOverride,
 }: {
   leadId: string;
-  initial: Decision | null;
+  feedbackType: FeedbackType | null;
+  feedbackOverride: Decision | null;
 }) {
-  const [current, setCurrent] = useState<Decision | null>(initial);
+  const [currentType, setCurrentType] = useState<FeedbackType | null>(feedbackType);
+  const [currentOverride, setCurrentOverride] = useState<OverrideDecision | null>(
+    feedbackOverride as OverrideDecision | null
+  );
   const [saving, setSaving] = useState(false);
 
-  async function submit(feedback: Decision) {
+  async function submit(type: FeedbackType, override?: OverrideDecision) {
     if (saving) return;
-    const next = current === feedback ? null : feedback;
     setSaving(true);
     try {
+      const body: { feedback_type: FeedbackType; feedback_override?: OverrideDecision } = {
+        feedback_type: type,
+      };
+      if (type === 'override' && override) {
+        body.feedback_override = override;
+      }
       await fetch(`/api/leads/${leadId}/feedback`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ feedback: next ?? feedback }),
+        body: JSON.stringify(body),
       });
-      setCurrent(next ?? feedback);
+      setCurrentType(type);
+      setCurrentOverride(type === 'override' ? (override ?? null) : null);
     } finally {
       setSaving(false);
     }
@@ -34,13 +45,30 @@ export function FeedbackButtons({
 
   return (
     <div className={styles.feedbackGroup}>
-      {OPTIONS.map((opt) => (
+      <button
+        onClick={() => submit('correct')}
+        disabled={saving}
+        className={`${styles.feedbackBtn} ${currentType === 'correct' ? styles.feedbackActiveCorrect : ''}`}
+        title="Correct"
+      >
+        &#10003;
+      </button>
+      <button
+        onClick={() => submit('incorrect')}
+        disabled={saving}
+        className={`${styles.feedbackBtn} ${currentType === 'incorrect' ? styles.feedbackActiveIncorrect : ''}`}
+        title="Incorrect"
+      >
+        &#10007;
+      </button>
+      <span className={styles.feedbackSep} />
+      {(['ACT', 'WATCH', 'IGNORE'] as OverrideDecision[]).map((opt) => (
         <button
           key={opt}
-          onClick={() => submit(opt)}
+          onClick={() => submit('override', opt)}
           disabled={saving}
-          className={`${styles.feedbackBtn} ${current === opt ? styles[`feedbackActive${opt}`] : ''}`}
-          title={`Marquer comme ${opt}`}
+          className={`${styles.feedbackBtn} ${styles.feedbackBtnOverride} ${currentType === 'override' && currentOverride === opt ? styles[`feedbackActiveOverride${opt}`] : ''}`}
+          title={`Override: ${opt}`}
         >
           {opt[0]}
         </button>

@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { extractFeatures } from '@/inbox/llm';
-import { scoreLead } from '@/inbox/triage';
+import { triageEmail } from '@/adapters/email/adapter';
+import type { InboundEmail } from '@/adapters/email/adapter';
 import { getSupabase } from '@/lib/supabase';
 import { notifySlack } from '@/lib/slack';
-import type { InboundEmail } from '@/inbox/types';
 
 export async function POST(req: NextRequest) {
   // Optional webhook secret validation
@@ -29,15 +28,15 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  let features;
+  let result;
   try {
-    features = await extractFeatures(email);
+    result = await triageEmail(email);
   } catch (err) {
     console.error('[triage] LLM extraction failed', err);
     return NextResponse.json({ error: 'Feature extraction failed' }, { status: 500 });
   }
 
-  const result = scoreLead(features);
+  const logged_at = new Date().toISOString();
 
   // Structured log (the money log — keep it)
   console.log(
@@ -46,14 +45,14 @@ export async function POST(req: NextRequest) {
       sender: email.from,
       subject: email.subject,
       features: {
-        B: features.business,
-        U: features.urgency,
-        F: features.fit,
+        B: result.business,
+        U: result.urgency,
+        F: result.fit,
       },
       score: result.score,
       decision: result.decision,
-      summary: features.summary,
-      timestamp: result.logged_at,
+      reason: result.reason,
+      timestamp: logged_at,
     })
   );
 
@@ -63,14 +62,14 @@ export async function POST(req: NextRequest) {
     await db.from('inbound_leads').insert({
       sender: email.from,
       subject: email.subject,
-      summary: features.summary,
-      business: features.business,
-      urgency: features.urgency,
-      fit: features.fit,
+      reason: result.reason,
+      business: result.business,
+      urgency: result.urgency,
+      fit: result.fit,
       score: result.score,
       decision: result.decision,
       raw_email: email,
-      processed_at: result.logged_at,
+      processed_at: logged_at,
     });
   } catch (err) {
     // Log but don't fail the request — the triage result is still valid
@@ -83,8 +82,8 @@ export async function POST(req: NextRequest) {
       `*[Priorix] ACT — répondre immédiatement*`,
       `*De :* ${email.from}`,
       `*Sujet :* ${email.subject}`,
-      `*Résumé :* ${features.summary}`,
-      `*Score :* ${result.score}/10  B:${features.business}  U:${features.urgency}  F:${features.fit}`,
+      `*Résumé :* ${result.reason}`,
+      `*Score :* ${result.score}/10  B:${result.business}  U:${result.urgency}  F:${result.fit}`,
     ].join('\n');
     await notifySlack(msg).catch((e) => console.error('[triage] Slack notify failed', e));
   }
