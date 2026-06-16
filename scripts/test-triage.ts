@@ -34,7 +34,7 @@ async function main() {
     console.log(`\n--- ${email.from} ---`);
     const features = await extractFeatures(email);
     const result = scoreLead(features);
-    console.log(JSON.stringify({ features, ...result }, null, 2));
+    console.log(JSON.stringify(result, null, 2));
   }
 }
 
