@@ -45,6 +45,7 @@ function callPriorix(email) {
   var props   = PropertiesService.getScriptProperties();
   var apiUrl  = props.getProperty('PRIORIX_API_URL');
   var secret  = props.getProperty('WEBHOOK_SECRET') || '';
+  var userId  = Session.getActiveUser().getEmail() || 'unknown';
 
   if (!apiUrl) {
     return { error: 'PRIORIX_API_URL non configurée dans Script Properties.' };
@@ -54,12 +55,15 @@ function callPriorix(email) {
     var response = UrlFetchApp.fetch(apiUrl, {
       method:          'post',
       contentType:     'application/json',
-      headers:         { 'x-webhook-secret': secret },
+      headers:         { 'x-webhook-secret': secret, 'x-user-id': userId },
       payload:         JSON.stringify(email),
       muteHttpExceptions: true
     });
 
     var code = response.getResponseCode();
+    if (code === 429) {
+      return { error: 'Limite journalière atteinte (10 analyses/jour). Revenez demain ou passez Pro.' };
+    }
     if (code !== 200) {
       return { error: 'API error ' + code };
     }
@@ -110,6 +114,18 @@ function buildResultCard(email, result) {
         .setTopLabel('Fit')
         .setContent(String(result.fit || 0) + ' / 10')
     );
+
+  if (result.usage) {
+    section.addWidget(CardService.newDivider());
+    section.addWidget(
+      CardService.newTextParagraph()
+        .setText(
+          '<font color="#555555">Analyses aujourd\'hui : ' +
+          result.usage.count + ' / ' + result.usage.limit +
+          ' — ' + result.usage.remaining + ' restante(s)</font>'
+        )
+    );
+  }
 
   return CardService.newCardBuilder()
     .setHeader(
