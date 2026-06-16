@@ -86,7 +86,7 @@ export default function LandingPage() {
           {
             icon: '🎯',
             title: 'Simple',
-            desc: 'ACT, WATCH ou IGNORE. Rien d'autre.',
+            desc: "ACT, WATCH ou IGNORE. Rien d'autre.",
           },
           {
             icon: '🔒',
