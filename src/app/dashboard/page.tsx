@@ -1,16 +1,27 @@
 import type { LeadRecord, Decision } from '@/inbox/types';
 import { FeedbackButtons } from './FeedbackButtons';
+import { getSupabase } from '@/lib/supabase';
 import styles from './dashboard.module.css';
 
 async function getLeads(decision?: string): Promise<LeadRecord[]> {
-  const base = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
-  const url = new URL('/api/leads', base);
-  if (decision) url.searchParams.set('decision', decision);
-  url.searchParams.set('limit', '100');
+  try {
+    const db = getSupabase();
+    let query = db
+      .from('inbound_leads')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(100);
 
-  const res = await fetch(url.toString(), { cache: 'no-store' });
-  if (!res.ok) return [];
-  return res.json();
+    if (decision && ['ACT', 'WATCH', 'IGNORE'].includes(decision)) {
+      query = query.eq('decision', decision);
+    }
+
+    const { data, error } = await query;
+    if (error || !data) return [];
+    return data as LeadRecord[];
+  } catch {
+    return [];
+  }
 }
 
 const DECISION_STYLES: Record<Decision, string> = {
