@@ -31,6 +31,8 @@ export interface LeadRecord {
   fit: number;
   score: number;
   decision: Decision;
+  feedback: Decision | null;
+  feedback_at: string | null;
   raw_email: InboundEmail;
   created_at: string;
   processed_at: string | null;

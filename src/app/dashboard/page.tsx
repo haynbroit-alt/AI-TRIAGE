@@ -1,4 +1,5 @@
 import type { LeadRecord, Decision } from '@/inbox/types';
+import { FeedbackButtons } from './FeedbackButtons';
 import styles from './dashboard.module.css';
 
 async function getLeads(decision?: string): Promise<LeadRecord[]> {
@@ -57,6 +58,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                 <th>U</th>
                 <th>F</th>
                 <th>Reçu</th>
+                <th title="Correction humaine">Feedback</th>
               </tr>
             </thead>
             <tbody>
@@ -81,6 +83,9 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                       hour: '2-digit',
                       minute: '2-digit',
                     })}
+                  </td>
+                  <td>
+                    <FeedbackButtons leadId={lead.id} initial={lead.feedback} />
                   </td>
                 </tr>
               ))}

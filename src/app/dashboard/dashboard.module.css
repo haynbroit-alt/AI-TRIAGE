@@ -141,3 +141,37 @@
   padding: 3rem 0;
   text-align: center;
 }
+
+/* Feedback */
+
+.feedbackGroup {
+  display: flex;
+  gap: 3px;
+}
+
+.feedbackBtn {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  border: 1px solid #2a2a2f;
+  background: #1c1c20;
+  color: #555;
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+}
+
+.feedbackBtn:hover:not(:disabled) {
+  background: #26262c;
+  color: #aaa;
+}
+
+.feedbackBtn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.feedbackActiveACT    { background: #1a3a1a; color: #4ade80; border-color: #2a5a2a; }
+.feedbackActiveWATCH  { background: #3a2e00; color: #facc15; border-color: #5a4800; }
+.feedbackActiveIGNORE { background: #2a1a1a; color: #f87171; border-color: #4a2a2a; }
