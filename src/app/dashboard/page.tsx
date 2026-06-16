@@ -53,7 +53,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                 <th>Score</th>
                 <th>De</th>
                 <th>Sujet</th>
-                <th>Résumé</th>
+                <th>Raison</th>
                 <th>B</th>
                 <th>U</th>
                 <th>F</th>
@@ -72,7 +72,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                   <td className={styles.score}>{lead.score.toFixed(1)}</td>
                   <td className={styles.truncate}>{lead.sender}</td>
                   <td className={styles.truncate}>{lead.subject}</td>
-                  <td className={styles.summary}>{lead.summary}</td>
+                  <td className={styles.summary}>{lead.reason}</td>
                   <td>{lead.business}</td>
                   <td>{lead.urgency}</td>
                   <td>{lead.fit}</td>
@@ -85,7 +85,11 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                     })}
                   </td>
                   <td>
-                    <FeedbackButtons leadId={lead.id} initial={lead.feedback} />
+                    <FeedbackButtons
+                      leadId={lead.id}
+                      feedbackType={lead.feedback_type}
+                      feedbackOverride={lead.feedback_override}
+                    />
                   </td>
                 </tr>
               ))}
