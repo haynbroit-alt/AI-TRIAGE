@@ -1,5 +1,114 @@
-import { redirect } from 'next/navigation';
+import type { Metadata } from 'next';
+import styles from './landing.module.css';
 
-export default function Home() {
-  redirect('/dashboard');
+export const metadata: Metadata = {
+  title: 'Priorix — Vous savez instantanément quoi faire de chaque email.',
+  description:
+    'Priorix analyse chaque email et retourne une décision immédiate : ACT, WATCH ou IGNORE. Extension Gmail simple, un seul clic.',
+};
+
+const INSTALL_URL = '#install'; // remplacer par l'URL Workspace Marketplace après publication
+
+export default function LandingPage() {
+  return (
+    <div className={styles.page}>
+      <nav className={styles.nav}>
+        <span className={styles.logo}>Priorix</span>
+        <a href="/dashboard" className={styles.navLink}>
+          Dashboard
+        </a>
+      </nav>
+
+      <main className={styles.hero}>
+        <span className={styles.badge}>
+          <span className={styles.badgeDot} />
+          Disponible pour Gmail
+        </span>
+
+        <h1 className={styles.headline}>
+          Vous savez instantanément{' '}
+          <em>quoi faire</em>{' '}
+          de chaque email.
+        </h1>
+
+        <p className={styles.sub}>
+          Priorix analyse chaque email en 1 clic et vous donne une décision claire :
+          répondre maintenant, traiter plus tard, ou ignorer.
+        </p>
+
+        <a href={INSTALL_URL} className={styles.cta}>
+          Installer l&apos;extension Gmail
+        </a>
+        <span className={styles.ctaSub}>Gratuit · 10 analyses / jour</span>
+
+        <div className={styles.previewWrap}>
+          <div className={styles.previewCard}>
+            <div className={styles.previewHeader}>
+              <div className={styles.previewDots}>
+                <span className={styles.dot} />
+                <span className={styles.dot} />
+                <span className={styles.dot} />
+              </div>
+              <span className={styles.previewTitle}>Priorix</span>
+            </div>
+            <div className={styles.previewBody}>
+              <div className={styles.previewDecision}>
+                <span className={`${styles.decisionBadge} ${styles.decisionAct}`}>ACT</span>
+                <span className={styles.decisionLabel}>Répondre maintenant</span>
+              </div>
+              <div className={styles.previewScores}>
+                {[
+                  { key: 'Business', val: 9 },
+                  { key: 'Urgency', val: 8 },
+                  { key: 'Fit', val: 9 },
+                ].map(({ key, val }) => (
+                  <div key={key} className={styles.scoreItem}>
+                    <span className={styles.scoreKey}>{key}</span>
+                    <span className={styles.scoreVal}>{val}</span>
+                  </div>
+                ))}
+              </div>
+              <p className={styles.previewReason}>
+                &ldquo;Lead qualifié avec budget identifié et délai urgent.&rdquo;
+              </p>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <section className={styles.features}>
+        {[
+          {
+            icon: '⚡',
+            title: 'Immédiat',
+            desc: 'Décision en moins de 3 secondes par email.',
+          },
+          {
+            icon: '🎯',
+            title: 'Simple',
+            desc: 'ACT, WATCH ou IGNORE. Rien d'autre.',
+          },
+          {
+            icon: '🔒',
+            title: 'Privé',
+            desc: 'Vos emails ne sont jamais stockés.',
+          },
+        ].map(({ icon, title, desc }) => (
+          <div key={title} className={styles.feature}>
+            <div className={styles.featureIcon}>{icon}</div>
+            <div className={styles.featureTitle}>{title}</div>
+            <div className={styles.featureDesc}>{desc}</div>
+          </div>
+        ))}
+      </section>
+
+      <footer className={styles.footer}>
+        <span className={styles.footerLogo}>Priorix</span>
+        <nav className={styles.footerLinks}>
+          <a href="/dashboard" className={styles.footerLink}>Dashboard</a>
+          <a href="/api/triage" className={styles.footerLink}>API</a>
+        </nav>
+      </footer>
+    </div>
+  );
 }
