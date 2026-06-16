@@ -1,10 +1,10 @@
-import Anthropic from '@anthropic-ai/sdk';
+import OpenAI from 'openai';
 import { score } from './scorer';
 import type { CoreInput, CoreOutput } from './types';
 
 const SYSTEM_PROMPT = `Tu es Priorix, un moteur de décision pour flux entrants.
 
-Analyse le message et retourne UNIQUEMENT du JSON valide.
+Analyse le message et retourne uniquement du JSON valide.
 
 Évalue :
 - business : valeur business potentielle (0–10)
@@ -20,29 +20,35 @@ Format strict :
   "reason": ""
 }`;
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const SAFE_IGNORE: CoreOutput = {
+  business: 0,
+  urgency: 0,
+  fit: 0,
+  score: 0,
+  decision: 'IGNORE',
+  reason: 'Analyse impossible — décision de sécurité par défaut.',
+};
+
+const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 function clamp(v: number): number {
   return Math.max(0, Math.min(10, v));
 }
 
-export async function analyze(input: CoreInput): Promise<CoreOutput> {
-  const response = await client.messages.create({
-    model: 'claude-sonnet-4-6',
+async function callModel(text: string): Promise<CoreOutput> {
+  const response = await client.chat.completions.create({
+    model: 'gpt-4.1',
     max_tokens: 256,
-    system: SYSTEM_PROMPT,
-    messages: [{ role: 'user', content: input.text }],
+    response_format: { type: 'json_object' },
+    messages: [
+      { role: 'system', content: SYSTEM_PROMPT },
+      { role: 'user', content: text },
+    ],
   });
 
-  const text = response.content
-    .filter((b) => b.type === 'text')
-    .map((b) => (b as { type: 'text'; text: string }).text)
-    .join('');
+  const content = response.choices[0]?.message?.content ?? '';
+  const raw = JSON.parse(content);
 
-  const match = text.match(/\{[\s\S]*\}/);
-  if (!match) throw new Error(`LLM returned no JSON. Raw: ${text}`);
-
-  const raw = JSON.parse(match[0]);
   const b = clamp(Number(raw.business ?? 0));
   const u = clamp(Number(raw.urgency ?? 0));
   const f = clamp(Number(raw.fit ?? 0));
@@ -56,4 +62,18 @@ export async function analyze(input: CoreInput): Promise<CoreOutput> {
     decision,
     reason: String(raw.reason ?? '').slice(0, 200),
   };
+}
+
+export async function analyze(input: CoreInput): Promise<CoreOutput> {
+  try {
+    return await callModel(input.text);
+  } catch {
+    // 1 retry — même modèle, même logique
+    try {
+      return await callModel(input.text);
+    } catch {
+      // Safe default : IGNORE plutôt que crash
+      return SAFE_IGNORE;
+    }
+  }
 }
