@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'AI Triage Inbox',
-  description: 'B2B inbound lead triage',
+  title: 'Priorix',
+  description: 'Vous savez immédiatement quels emails méritent votre attention.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

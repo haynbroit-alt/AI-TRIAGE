@@ -1,24 +1,56 @@
-# AI Triage Inbox — B2B Inbound Lead Triage
+# Priorix
 
-Minimal pipeline: Email → LLM features → Score → ACT / WATCH / IGNORE.
+> Vous savez immédiatement quels emails méritent votre attention.
+
+Priorix est un moteur de triage intelligent pour les emails entrants.
+
+Une entrée. Trois signaux. Une décision.
+
+## Comment ça marche
+
+```
+Email entrant
+      ↓
+    LLM
+      ↓
+Business / Urgency / Fit  (0–10 chacun)
+      ↓
+    Score  (moyenne)
+      ↓
+ACT / WATCH / IGNORE
+      ↓
+Alerte ou action
+```
+
+| Décision | Signification |
+|----------|---------------|
+| **ACT**  | Répondre immédiatement |
+| **WATCH**| Traiter plus tard |
+| **IGNORE**| Archiver ou ignorer |
+
+Chaque décision est accompagnée d'une explication courte et compréhensible.
 
 ## Stack
 
 - **Next.js 15** (App Router, TypeScript)
-- **Anthropic** — feature extraction (business / urgency / fit)
-- **Supabase** — persistence
-- **Slack** — optional sales alerts on ACT decisions
+- **Anthropic** — extraction des signaux (Business / Urgency / Fit)
+- **Supabase** — persistance
+- **Slack** — alertes sur décisions ACT (optionnel)
 
-## Quick start
+## Démarrage
 
 ```bash
 cp .env.example .env.local
-# fill in ANTHROPIC_API_KEY + Supabase vars
+# Remplir ANTHROPIC_API_KEY + variables Supabase
 npm install
 npm run dev
 ```
 
-Dashboard: http://localhost:3000/dashboard
+Dashboard : http://localhost:3000/dashboard
+
+## Base de données
+
+Exécuter `supabase/migrations/001_init.sql` dans l'éditeur SQL Supabase.
 
 ## Webhook
 
@@ -33,27 +65,25 @@ x-webhook-secret: <WEBHOOK_SECRET>
 }
 ```
 
-Response:
+Réponse :
 
 ```json
 {
-  "features": { "business": 8, "urgency": 7, "fit": 9, "summary": "..." },
+  "features": { "business": 8, "urgency": 7, "fit": 9, "summary": "PME cherche automatisation avec budget identifié." },
   "score": 8.0,
   "decision": "ACT",
   "logged_at": "2026-06-16T..."
 }
 ```
 
-## Scoring
+## Test rapide
 
-| Variable | Poids |
-|----------|-------|
-| business | 1/3   |
-| urgency  | 1/3   |
-| fit      | 1/3   |
+```bash
+npx tsx scripts/test-triage.ts
+```
 
-Seuils : **≥ 8 → ACT** · **≥ 5 → WATCH** · **< 5 → IGNORE**
+## Philosophie
 
-## Database
+Priorix ne remplace pas l'humain. Priorix réduit le bruit.
 
-Run `supabase/migrations/001_init.sql` in your Supabase SQL editor.
+Pas de multi-agents. Pas de raisonnement complexe. Pas d'autonomie artificielle.

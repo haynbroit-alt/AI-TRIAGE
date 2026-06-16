@@ -30,7 +30,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
   return (
     <main className={styles.main}>
       <header className={styles.header}>
-        <h1>AI Triage Inbox</h1>
+        <h1>Priorix</h1>
         <p className={styles.subtitle}>{leads.length} lead(s) affiché(s)</p>
       </header>
 

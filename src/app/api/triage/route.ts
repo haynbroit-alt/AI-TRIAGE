@@ -80,11 +80,11 @@ export async function POST(req: NextRequest) {
   // Alert sales on hot leads
   if (result.decision === 'ACT') {
     const msg = [
-      `🔥 *Lead chaud détecté* — décision : ACT`,
+      `*[Priorix] ACT — répondre immédiatement*`,
       `*De :* ${email.from}`,
       `*Sujet :* ${email.subject}`,
       `*Résumé :* ${features.summary}`,
-      `*Score :* ${result.score}/10 (B:${features.business} U:${features.urgency} F:${features.fit})`,
+      `*Score :* ${result.score}/10  B:${features.business}  U:${features.urgency}  F:${features.fit}`,
     ].join('\n');
     await notifySlack(msg).catch((e) => console.error('[triage] Slack notify failed', e));
   }

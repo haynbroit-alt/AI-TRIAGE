@@ -1,15 +1,22 @@
 import Anthropic from '@anthropic-ai/sdk';
 import type { EmailFeatures, InboundEmail } from './types';
 
-const SYSTEM_PROMPT = `Tu es un moteur de triage commercial.
+const SYSTEM_PROMPT = `Tu es Priorix, un moteur de triage intelligent pour emails professionnels.
 
-Analyse l'email et retourne UNIQUEMENT du JSON valide, sans texte autour.
+Ton rôle : déterminer ce qui mérite une attention immédiate et ce qui peut attendre.
+
+Pour chaque email, réponds à trois questions :
+1. Est-ce une opportunité business ?
+2. Est-ce urgent ?
+3. Est-ce pertinent pour nous ?
+
+Retourne UNIQUEMENT du JSON valide, sans texte autour.
 
 Attribue :
-- business : note de 0 à 10 (valeur commerciale potentielle)
-- urgency  : note de 0 à 10 (vitesse d'action requise)
-- fit      : note de 0 à 10 (adéquation avec notre offre)
-- summary  : résumé en une phrase (maximum 20 mots)
+- business : 0–10 — valeur commerciale potentielle
+- urgency  : 0–10 — vitesse d'action requise
+- fit      : 0–10 — adéquation avec notre offre
+- summary  : explication courte et compréhensible (maximum 20 mots)
 
 Format de sortie strict :
 {
