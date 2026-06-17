@@ -7,7 +7,8 @@ export const metadata: Metadata = {
     'Priorix analyse chaque email et retourne une décision immédiate : ACT, WATCH ou IGNORE. Extension Gmail simple, un seul clic.',
 };
 
-const INSTALL_URL = '#install'; // remplacer par l'URL Workspace Marketplace après publication
+const INSTALL_URL =
+  'mailto:haynbroit@hotmail.com?subject=Demande%20d%27acc%C3%A8s%20beta%20Priorix&body=Bonjour%2C%0A%0AJe%20souhaite%20acc%C3%A9der%20%C3%A0%20la%20beta%20de%20Priorix.%0A%0AMon%20nom%20%3A%0AEntreprise%20%3A%0ANombre%20d%27emails%20par%20jour%20(environ)%20%3A%0ACas%20d%27usage%20%3A';
 
 export default function LandingPage() {
   return (
@@ -37,9 +38,9 @@ export default function LandingPage() {
         </p>
 
         <a href={INSTALL_URL} className={styles.cta}>
-          Installer l&apos;extension Gmail
+          Demander l&apos;accès beta
         </a>
-        <span className={styles.ctaSub}>Gratuit · 10 analyses / jour</span>
+        <span className={styles.ctaSub}>Gratuit · 10 analyses / jour · Accès limité</span>
 
         <div className={styles.previewWrap}>
           <div className={styles.previewCard}>
