@@ -7,9 +7,6 @@ on:
         description: 'Tape "oui" pour confirmer'
         required: true
 
-env:
-  SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
-
 jobs:
   migrate:
     runs-on: ubuntu-latest
@@ -22,6 +19,4 @@ jobs:
         uses: supabase/setup-cli@v1
 
       - name: Run Migrations
-        run: supabase db push --db-url "$SUPABASE_DB_URL"
-        env:
-          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: supabase db push --db-url "${{ secrets.SUPABASE_DB_URL }}"
