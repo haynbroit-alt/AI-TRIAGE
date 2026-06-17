@@ -8,6 +8,13 @@ on:
         required: true
         default: ''
 
+env:
+  PGHOST: db.elhppzgvnysidywkuxuu.supabase.co
+  PGUSER: postgres
+  PGDATABASE: postgres
+  PGPORT: 5432
+  PGPASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+
 jobs:
   migrate:
     name: Exécuter les migrations SQL
@@ -22,22 +29,19 @@ jobs:
         run: sudo apt-get install -y postgresql-client
 
       - name: Run 001_init
-        run: psql "${{ secrets.SUPABASE_DB_URL }}" -f supabase/migrations/001_init.sql
-        continue-on-error: false
+        run: psql -f supabase/migrations/001_init.sql
 
       - name: Run 002_feedback
-        run: psql "${{ secrets.SUPABASE_DB_URL }}" -f supabase/migrations/002_feedback.sql
-        continue-on-error: false
+        run: psql -f supabase/migrations/002_feedback.sql
 
       - name: Run 003_core_refactor
-        run: psql "${{ secrets.SUPABASE_DB_URL }}" -f supabase/migrations/003_core_refactor.sql
+        run: psql -f supabase/migrations/003_core_refactor.sql
         continue-on-error: true
 
       - name: Run 004_rate_limiting
-        run: psql "${{ secrets.SUPABASE_DB_URL }}" -f supabase/migrations/004_rate_limiting.sql
-        continue-on-error: false
+        run: psql -f supabase/migrations/004_rate_limiting.sql
 
       - name: Verify tables
         run: |
-          psql "${{ secrets.SUPABASE_DB_URL }}" -c "\dt"
-          psql "${{ secrets.SUPABASE_DB_URL }}" -c "\df try_increment_usage"
+          psql -c "\dt"
+          psql -c "\df try_increment_usage"
